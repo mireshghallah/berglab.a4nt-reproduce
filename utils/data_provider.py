@@ -248,7 +248,7 @@ class DataProvider():
             import ipdb;ipdb.set_trace()
 
         sidx = np.random.randint(0,len(sents),1) if sidx == None else sidx
-        print(sidx)
+        #print(sidx)
         s = sents[sidx[0]].split()
 
         targ = s[1:]
@@ -315,6 +315,8 @@ class DataProvider():
         auths = []
         b_sz = len(batch)
         for b in batch:
+            #print(b['in'])
+            #print(b['targ'])
             inp_seqs.append([char_to_ix[c] for c in b['in'][:maxlen] if c in char_to_ix])
             targ_seqs.append([char_to_ix[c] for c in b['targ'][:maxlen] if c in char_to_ix])
             lens.append(len(inp_seqs[-1]))
