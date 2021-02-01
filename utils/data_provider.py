@@ -15,8 +15,8 @@ class DataProvider():
     def __init__(self,params):
         dataset = params['dataset']
         datadir = osp.join('data',dataset)
-        if osp.exists(osp.join(datadir,params.get('dataset_file','dataset.json'))):
-            self.data = json.load(open(osp.join(datadir,params.get('dataset_file','dataset.json')),'r'))
+        if osp.exists('data/pan16AuthorMask/splits/dataset_blog.json'): #(osp.join(datadir,params.get('dataset_file','dataset.json'))):
+            self.data = json.load(open('data/pan16AuthorMask/splits/dataset_blog.json','r'))#json.load(open(osp.join(datadir,params.get('dataset_file','dataset.json')),'r'))
         else:
             self.data = preproc_dataset(osp.join(datadir,'splits','train'), datadir)
 
@@ -248,7 +248,8 @@ class DataProvider():
             import ipdb;ipdb.set_trace()
 
         sidx = np.random.randint(0,len(sents),1) if sidx == None else sidx
-        s = sents[sidx].split()
+        print(sidx)
+        s = sents[sidx[0]].split()
 
         targ = s[1:]
         inp = s[:-1]
