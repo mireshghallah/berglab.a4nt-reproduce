@@ -12,7 +12,7 @@ def preproc_dataset(src_path, output_path, frac_test = 0.15, frac_val = 0.1):
     authors = {}
     frac_test = 0.15
     frac_val = 0.1
-    src_path = 'data/pan16AuthorMask/splits/train/'
+    src_path = 'data2/' #'data/pan16AuthorMask/splits/train/'
 
     for ath in os.listdir(src_path):
         authors[ath] = {'src_files':[]}

@@ -22,23 +22,29 @@ class DataProvider():
 
         self.athstr = 'author' if params.get('authstring',None) == None else params['authstring']
 
+        #print(self.data)
         if len(params.get('filterauths', [])) > 0:
-            if params.get('filtertype','keep') == 'keep':
-                keepset = set(params['filterauths'])
-                print 'Keeping only %s'%keepset
-                self.data['docs'] = [doc for doc in self.data['docs'] if str(doc[self.athstr]) in keepset]
-            elif params.get('filtertype','keep') == 'agegroup':
+           if params.get('filtertype','keep') == 'keep':
+               keepset = set(params['filterauths'])
+               print 'Keeping only %s'%keepset
+               self.data['docs'] = [doc for doc in self.data['docs'] if str(doc[self.athstr]) in keepset]
+           elif params.get('filtertype','keep') == 'agegroup':
                 groupidces = map(int,params['filterauths'])
+                print(groupidces)
                 for i,doc in enumerate(self.data['docs']):
-                    grp = bisect(groupidces, doc['actage'])
-                    self.data['docs'][i][self.athstr] = '<' + str(groupidces[grp]) if grp < len(groupidces) else 'None'
+                   grp = bisect(groupidces, doc['actage'])
+                   if doc['actage']=='23-48': #or int(doc['actage'])>20 TODOOOOO
+                        age='<50'
+                   else:
+                        age='<20'
+                   self.data['docs'][i][self.athstr] = age #'<' + str(groupidces[grp]) if grp < len(groupidces) else 'None'
                 self.data['docs'] = [doc for doc in self.data['docs'] if doc[self.athstr] != 'None']
-            elif params.get('filtertype','keep') == 'agegroup-grt':
-                groupidces = map(int,params['filterauths'])
-                for i,doc in enumerate(self.data['docs']):
-                    grp = bisect(groupidces, doc['actage'])
-                    self.data['docs'][i][self.athstr] = '>' + str(groupidces[grp-1]) if grp > 0 else 'None'
-                self.data['docs'] = [doc for doc in self.data['docs'] if doc[self.athstr] != 'None']
+           elif params.get('filtertype','keep') == 'agegroup-grt':
+               groupidces = map(int,params['filterauths'])
+               for i,doc in enumerate(self.data['docs']):
+                   grp = bisect(groupidces, doc['actage'])
+                   self.data['docs'][i][self.athstr] = '>' + str(groupidces[grp-1]) if grp > 0 else 'None'
+               self.data['docs'] = [doc for doc in self.data['docs'] if doc[self.athstr] != 'None']
 
         self.splits = defaultdict(list)
         for i,dc in enumerate(self.data['docs']):
@@ -248,7 +254,7 @@ class DataProvider():
             import ipdb;ipdb.set_trace()
 
         sidx = np.random.randint(0,len(sents),1) if sidx == None else sidx
-        #print(sidx)
+        #print(len(sents), sidx, cid)
         s = sents[sidx[0]].split()
 
         targ = s[1:]
@@ -293,16 +299,21 @@ class DataProvider():
   #  l += self.min_len
   #  batch = [self.sampleImageSentencePairByLen(l) for i in xrange(batch_size)]
   #  return batch,l
-    def get_sentence_batch(self, batch_size, split='train', atoms='char', aid=None, sample_by_len = False):
+    def get_sentence_batch(self, batch_size, split='train', atoms='char', aid=None, sample_by_len = False, user_id = None, sid_out=None):
         allids = self.lenMap[split][self.getRandLen()] if sample_by_len else self.splits[split]
+        #print(len(allids), split, atoms)
         if aid:
             allids = [idx for idx in allids if self.data['docs'][idx[0] if sample_by_len else idx][self.athstr] == aid]
 
-        batch_ids = [allids[i] for i in np.random.randint(0, len(allids), batch_size)]
+        
+        if user_id is not None:
+            batch_ids = [allids[user_id]]
+        else:
+            batch_ids = [allids[i] for i in np.random.randint(0, len(allids), batch_size)]
         batch = []
         sent_func = {'char':self.get_rand_sentence, 'word':self.get_rand_sentence_tokenized}
         for i,cids in enumerate(batch_ids):
-            cid,sid = (cids) if sample_by_len else (cids,None)
+            cid,sid = (cids) if sample_by_len else (cids, sid_out)
             inp, targ = sent_func[atoms](cid,sid)
             batch.append({'in':inp,'targ': targ, 'author': self.data['docs'][cid][self.athstr],
                 'id':cid})
@@ -328,6 +339,7 @@ class DataProvider():
                 else:
                     inp_seqs[-1].insert(0,0)
                     lens[-1] = lens[-1] + 1
+            
             authidx = auth_to_ix[b['author']] if np.random.rand() >= leakage else np.random.choice(auth_to_ix.values())
             auths.append(authidx)
 

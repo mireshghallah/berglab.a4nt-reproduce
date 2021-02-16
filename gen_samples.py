@@ -85,6 +85,7 @@ def main(params):
         model = CharLstm(cp_params)
     else:
         model = CharTranslator(cp_params)
+
     # set to train mode, this activates dropout
     model.eval()
     auth_colors = ['red', 'blue']
@@ -101,12 +102,17 @@ def main(params):
     hidden = model.init_hidden(1)
     jc = '' if cp_params.get('atoms','char') == 'char' else ' '
 
+    #print(len(dp.splits['train']))
+    
+
     for i in xrange(params['num_samples']):
-        c_aid = np.random.choice(auth_to_ix.values())
+        
+        
+        #c_aid = np.random.choice(auth_to_ix.values())
         if params['m_type'] == 'generative':
             batch = dp.get_random_string(slen = params['seed_length'], split=params['split'])
         else:
-            batch = dp.get_sentence_batch(1,split=params['split'], atoms=cp_params.get('atoms','char'), aid=ix_to_auth[c_aid])
+            batch = dp.get_sentence_batch(1,split=params['split'], atoms=cp_params.get('atoms','char'), aid=None, user_id =i, sid_out = [0]) #dp.get_sentence_batch(1,split=params['split'], atoms=cp_params.get('atoms','char'), aid=ix_to_auth[c_aid])
 
         inps, targs, auths, lens = dp.prepare_data(batch, char_to_ix, auth_to_ix, maxlen=cp_params['max_seq_len'])
         auths_inp = 1 - auths if params['flip'] else auths
