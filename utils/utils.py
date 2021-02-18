@@ -221,7 +221,7 @@ def eval_translator(dp, model, params, char_to_ix, auth_to_ix, split='val', max_
 
     # Put the model in testing mode
     model.eval()
-
+    cnt=1
     for i, b_data in tqdm(enumerate(dp.iter_sentences(split=split, atoms=params.get('atoms','char'), batch_size = b_sz))):
         if len(b_data[0]) != b_sz or len(b_data[0]) != c_sz:
             hidden_zero =  model.init_hidden(len(b_data[0]))
@@ -230,12 +230,12 @@ def eval_translator(dp, model, params, char_to_ix, auth_to_ix, split='val', max_
         output, hidden = model.forward_mltrain(inps, lens, inps, lens, hidden_zero, compute_softmax=False, auths=auths)
         targets = pack_padded_sequence(Variable(targs).cuda(),lens)
         loss = criterion(pack_padded_sequence(output,lens)[0], targets[0])
-        total_loss += loss.data.cpu().numpy()[0]
-
-    cur_loss = total_loss / i
+        total_loss += loss.data.cpu().numpy()
+        cnt=i+1 
+    cur_loss = total_loss / cnt
     perplexity = np.exp(cur_loss)
 
-    print 'Eval on %.1f sentences of %s set is done'%(i*b_sz, split)
+    print 'Eval on %.1f sentences of %s set is done'%(cnt*b_sz, split)
     print 'Perplexity is %.2f '%(perplexity)
     print '-----------------------------------'
 

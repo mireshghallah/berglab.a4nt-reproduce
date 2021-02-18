@@ -7,7 +7,7 @@ from models.model_utils import get_classifier
 from models.char_lstm import CharLstm
 from models.char_translator import CharTranslator
 from collections import defaultdict
-from utils.data_provider import DataProvider
+from utils.data_provider_main import DataProvider
 from utils.utils import repackage_hidden, eval_model, eval_classify, eval_translator
 
 import torch
@@ -19,9 +19,17 @@ def main(params):
 
     # Create vocabulary and author index
     saved_model = torch.load(params['model'])
-    char_to_ix = saved_model['char_to_ix']
-    auth_to_ix = saved_model['auth_to_ix']
-    ix_to_char = saved_model['ix_to_char']
+    if 'misc' in saved_model:
+        misc = saved_model['misc']
+        char_to_ix = misc['char_to_ix']
+        auth_to_ix = misc['auth_to_ix']
+        ix_to_char = misc['ix_to_char']
+        ix_to_auth = misc['ix_to_auth']
+    else:
+        char_to_ix = saved_model['char_to_ix']
+        auth_to_ix = saved_model['auth_to_ix']
+        ix_to_char = saved_model['ix_to_char']
+        ix_to_auth = saved_model['ix_to_auth']
     cp_params = saved_model['arch']
 
     dp = DataProvider(cp_params)
