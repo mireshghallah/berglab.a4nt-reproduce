@@ -129,7 +129,7 @@ def main(params):
         if params['show_rev']:
             print colored('Rev %6s: '%(ix_to_auth[auths[0].detach().item()]),'green')+ colored('%s'%(jc.join([ix_to_char[c[0].detach().item()] for c in outs[-1] if c[0].detach().item() in ix_to_char])),auth_colors[auths[0].detach().item()])
         sent = (jc.join([ix_to_char[c[0].detach().item()] for c in outs[0] if (c[0].detach().item() in ix_to_char and ix_to_char[c[0].detach().item()] != 'END'  )] ))
-        with open("dev_drop20_shetty.txt", "a") as out_src:          
+        with open("dev.trans_5000", "a") as out_src:          
                 out_src.write(sent)
                 out_src.write('\n')
 
