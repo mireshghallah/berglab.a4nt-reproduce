@@ -120,7 +120,7 @@ def main(params):
         outs = adv_forward_pass(model, inps, lens, end_c=char_to_ix[endc], maxlen=cp_params['max_seq_len'], auths=auths_inp,
                      cycle_compute=params['show_rev'], append_symb=append_tensor)
         #char_outs = model.forward_gen(inps, hidden, auths_inp, n_max = cp_params['max_len'],end_c=char_to_ix['.'])
-        print '--------------------------------------------'
+        #print '--------------------------------------------'
         #print 'Translate from %s to %s'%(batch[0]['author'], ix_to_auth[auths_inp[0]])
         #print jc.join([ix_to_char[c[0].detach().item()] for c in inps[1:]])
         print colored('Inp %6s: '%(ix_to_auth[auths[0].detach().item()]),'green') + colored('%s'%(jc.join([ix_to_char[c[0].detach().item()] for c in inps[1:]])),auth_colors[auths[0].detach().item()])
@@ -129,7 +129,11 @@ def main(params):
         if params['show_rev']:
             print colored('Rev %6s: '%(ix_to_auth[auths[0].detach().item()]),'green')+ colored('%s'%(jc.join([ix_to_char[c[0].detach().item()] for c in outs[-1] if c[0].detach().item() in ix_to_char])),auth_colors[auths[0].detach().item()])
         sent = (jc.join([ix_to_char[c[0].detach().item()] for c in outs[0] if (c[0].detach().item() in ix_to_char and ix_to_char[c[0].detach().item()] != 'END'  )] ))
-        with open("dev.trans_5000", "a") as out_src:          
+        rev =  jc.join([ix_to_char[c[0].detach().item()] for c in outs[-1] if (c[0].detach().item() in ix_to_char  and ix_to_char[c[0].detach().item()] != 'END' )])
+        with open("dev.trans_6000", "a") as out_src:          
+                out_src.write(sent)
+                out_src.write('\n')
+        with open("rev_6000", "a") as out_src:          
                 out_src.write(sent)
                 out_src.write('\n')
 
